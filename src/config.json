@@ -1,0 +1,5 @@
+{
+    "prefix-key": "%",
+    "db-connect": true,
+    "index-name": "index1"
+}

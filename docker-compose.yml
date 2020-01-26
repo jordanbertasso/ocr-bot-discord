@@ -1,0 +1,51 @@
+version: "3.7"
+
+services:
+    bot: # discord.py bot
+        container_name: ocr-bot
+        build:
+            context: ./src
+            # dockerfile: Dockerfile2
+        volumes:
+            - botdata:/usr/src/bot/sql/
+        restart: always
+        networks:
+            - bot-network
+        depends_on:
+            - elasticsearch
+        links:
+            - elasticsearch
+        environment:
+            GOOGLE_APPLICATION_CREDENTIALS: "./gcloud_keys.json"
+
+    elasticsearch: # Elasticsearch Instance
+        container_name: elasticsearch
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.5.1
+        volumes: # Persist ES data in seperate "esdata" volume
+            - esdata:/usr/share/elasticsearch/data
+        environment:
+            - bootstrap.memory_lock=true
+            - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+            - discovery.type=single-node
+            - http.host=0.0.0.0
+            - transport.host=localhost
+            - network.host=0.0.0.0
+        networks:
+            - bot-network
+        expose:
+            - "9200"
+        ports: # Expose Elasticsearch ports
+            - "9200:9200"
+
+    # kibana:
+    #     container_name: ocr-bot-kibana
+    #     image: docker.elastic.co/kibana/kibana:7.5.1
+    #     volumes:
+    #       - ./kibana.yml:/usr/share/kibana/config/kibana.yml
+
+volumes:
+    esdata:
+    botdata:
+
+networks:
+    bot-network:

@@ -1,0 +1,7 @@
+.python-version
+.vscode/
+__pycache__/
+*/discord_secrets.json
+*/gcloud_keys.json
+discord.log
+venv/
