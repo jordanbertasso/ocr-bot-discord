@@ -16,7 +16,7 @@ git clone https://github.com/jordanbertasso/ocr-bot-discord.git
 cd ocr-bot-discord
 ```
 
-edit and rename `discord_secrets.json.example` and `gcloud_keys.json.example` using the keyfile from your gcloud service account.
+edit and rename `src/discord_secrets.json.example` and `src/gcloud_keys.json.example` using the keyfile from your gcloud service account.
 
 ```
 docker-compose build && docker-compose up && docker-compose logs -f
