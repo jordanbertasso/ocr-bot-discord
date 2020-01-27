@@ -1,8 +1,8 @@
-FROM python:3.8-alpine
+FROM python:3.8-slim-buster
 
 WORKDIR /usr/src/bot
 
-RUN apk add build-base zlib
+RUN apt update && apt install -y tesseract-ocr libtesseract-dev libleptonica-dev pkg-config build-essential
 
 COPY requirements.txt .
 

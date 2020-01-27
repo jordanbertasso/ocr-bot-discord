@@ -3,13 +3,14 @@ import requests
 import time
 import filetype
 import json
+import tesserocr
 
-from google.cloud import vision
 from elasticsearch_dsl import Search, Document, Index, Text, Long, Q
 from discord import Embed
 from hashlib import md5
 from es_db import Elastic_Database, Attachment
 from sql import Sqlite3_db
+from PIL import Image
 
 
 # Load config keys
@@ -23,7 +24,6 @@ db_connect = config['db-connect']
 # TODO - Automatic index management
 index_name = config['index-name']
 
-vision_client = vision.ImageAnnotatorClient()
 sql_db = Sqlite3_db()
 
 
@@ -171,16 +171,8 @@ def get_image_from_url(url):
 
 def detect_text(image_file):
     # Read the bytes of the BytesIO object
-    image = vision.types.Image(content=image_file.read())
-
-    text_detection_response = vision_client.text_detection(image=image)
-
-    annotations = text_detection_response.text_annotations
-
-    if len(annotations) > 0:
-        text = annotations[0].description
-    else:
-        text = ''
+    image = Image.open(image_file)
+    text = tesserocr.image_to_text(image)
 
     return text.replace('\n', ' ')
 

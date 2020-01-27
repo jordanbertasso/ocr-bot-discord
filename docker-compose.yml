@@ -17,6 +17,7 @@ services:
             - elasticsearch
         environment:
             GOOGLE_APPLICATION_CREDENTIALS: "./gcloud_keys.json"
+            LC_ALL: "C"
 
     elasticsearch: # Elasticsearch Instance
         container_name: elasticsearch
