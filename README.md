@@ -7,6 +7,8 @@ Make images in your server searchable
 * docker
 * docker-compose
 * Discord bot account
+#### Optional
+Alternative - checkout the tesserocr branch and run the OCR locally
 * gcloud project - vision API enabled
 * gcloud service account
 
