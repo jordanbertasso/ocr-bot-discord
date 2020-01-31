@@ -58,6 +58,8 @@ class Sqlite3_db():
         return
 
     def remove_admin(self, guild_id: str, user_id: str):
+        guild_id = str(guild_id)
+        user_id = str(user_id)
         sql_command = """
         DELETE FROM admins WHERE (guild_id=? AND user_id=?); 
         """
