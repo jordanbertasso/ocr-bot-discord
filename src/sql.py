@@ -106,6 +106,7 @@ class Sqlite3_db():
         return result
 
     def get_admins(self, guild_id: str):
+        guild_id = str(guild_id)
         sql_command = """
         SELECT user_id FROM admins WHERE guild_id = ?;
         """
