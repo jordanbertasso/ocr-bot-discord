@@ -110,7 +110,7 @@ class Sqlite3_db():
         sql_command = """
         SELECT user_id FROM admins WHERE guild_id = ?;
         """
-        self.cursor.execute(sql_command, (guild_id))
+        self.cursor.execute(sql_command, (guild_id,))
 
         result_tuples = self.cursor.fetchall()
         print(result_tuples)
