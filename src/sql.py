@@ -92,7 +92,7 @@ class Sqlite3_db():
         sql_command = """
         SELECT channel_id FROM blacklisted_channels WHERE guild_id = ?;
         """
-        self.cursor.execute(sql_command, (guild_id))
+        self.cursor.execute(sql_command, (guild_id,))
 
         result_tuples = self.cursor.fetchall()
         print(result_tuples)
