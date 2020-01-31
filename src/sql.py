@@ -27,6 +27,8 @@ class Sqlite3_db():
         return
 
     def add_blacklist_channel(self, guild_id: str, channel_id: str):
+        guild_id = str(guild_id)
+        channel_id = str(channel_id)
         sql_command = """
         INSERT INTO blacklisted_channels (guild_id, channel_id) VALUES (?, ?);
         """
