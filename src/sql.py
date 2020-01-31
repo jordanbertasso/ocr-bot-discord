@@ -42,6 +42,8 @@ class Sqlite3_db():
         return
 
     def add_admin(self, guild_id: str, user_id: str):
+        guild_id = str(guild_id)
+        user_id = str(user_id)
         sql_command = """
         INSERT INTO admins (guild_id, user_id) VALUES (?, ?);
         """
