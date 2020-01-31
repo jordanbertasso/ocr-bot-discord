@@ -91,6 +91,7 @@ class Sqlite3_db():
         return
 
     def get_blacklisted_channels(self, guild_id: str):
+        guild_id = str(guild_id)
         sql_command = """
         SELECT channel_id FROM blacklisted_channels WHERE guild_id = ?;
         """
