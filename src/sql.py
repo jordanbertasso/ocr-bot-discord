@@ -73,6 +73,8 @@ class Sqlite3_db():
 
     # TODO
     def remove_channel(self, guild_id: str, channel_id: str):
+        guild_id = str(guild_id)
+        channel_id = str(channel_id)
         sql_command = """
         DELETE FROM blacklisted_channels WHERE (guild_id=? AND channel_id=?); 
         """
