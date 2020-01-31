@@ -27,11 +27,13 @@ class Sqlite3_db():
         return
 
     def add_blacklist_channel(self, guild_id: str, channel_id: str):
-        sql_command = f"""
-        INSERT INTO blacklisted_channels (guild_id, channel_id) VALUES ({guild_id}, {channel_id});
+        guild_id = str(guild_id)
+        channel_id = str(channel_id)
+        sql_command = """
+        INSERT INTO blacklisted_channels (guild_id, channel_id) VALUES (?, ?);
         """
         try:
-            self.cursor.execute(sql_command)
+            self.cursor.execute(sql_command, (guild_id, channel_id))
             self.connection.commit()
         except Exception as e:
             print(e)
@@ -40,12 +42,14 @@ class Sqlite3_db():
         return
 
     def add_admin(self, guild_id: str, user_id: str):
-        sql_command = f"""
-        INSERT INTO admins (guild_id, user_id) VALUES ({guild_id}, {user_id});
+        guild_id = str(guild_id)
+        user_id = str(user_id)
+        sql_command = """
+        INSERT INTO admins (guild_id, user_id) VALUES (?, ?);
         """
 
         try:
-            self.cursor.execute(sql_command)
+            self.cursor.execute(sql_command, (guild_id, user_id))
             self.connection.commit()
         except Exception as e:
             print(e)
@@ -54,12 +58,14 @@ class Sqlite3_db():
         return
 
     def remove_admin(self, guild_id: str, user_id: str):
-        sql_command = f"""
-        DELETE FROM admins WHERE (guild_id={guild_id} AND user_id={user_id}); 
+        guild_id = str(guild_id)
+        user_id = str(user_id)
+        sql_command = """
+        DELETE FROM admins WHERE (guild_id=? AND user_id=?); 
         """
 
         try:
-            self.cursor.execute(sql_command)
+            self.cursor.execute(sql_command, (guild_id, user_id))
             self.connection.commit()
         except Exception as e:
             print(e)
@@ -69,12 +75,14 @@ class Sqlite3_db():
 
     # TODO
     def remove_channel(self, guild_id: str, channel_id: str):
-        sql_command = f"""
-        DELETE FROM blacklisted_channels WHERE (guild_id={guild_id} AND channel_id={channel_id}); 
+        guild_id = str(guild_id)
+        channel_id = str(channel_id)
+        sql_command = """
+        DELETE FROM blacklisted_channels WHERE (guild_id=? AND channel_id=?); 
         """
 
         try:
-            self.cursor.execute(sql_command)
+            self.cursor.execute(sql_command, (guild_id, channel_id))
             self.connection.commit()
         except Exception as e:
             print(e)
@@ -83,10 +91,11 @@ class Sqlite3_db():
         return
 
     def get_blacklisted_channels(self, guild_id: str):
-        sql_command = f"""
-        SELECT channel_id FROM blacklisted_channels WHERE guild_id = {guild_id};
+        guild_id = str(guild_id)
+        sql_command = """
+        SELECT channel_id FROM blacklisted_channels WHERE guild_id = ?;
         """
-        self.cursor.execute(sql_command)
+        self.cursor.execute(sql_command, (guild_id,))
 
         result_tuples = self.cursor.fetchall()
         print(result_tuples)
@@ -97,10 +106,11 @@ class Sqlite3_db():
         return result
 
     def get_admins(self, guild_id: str):
-        sql_command = f"""
-        SELECT user_id FROM admins WHERE guild_id = {guild_id};
+        guild_id = str(guild_id)
+        sql_command = """
+        SELECT user_id FROM admins WHERE guild_id = ?;
         """
-        self.cursor.execute(sql_command)
+        self.cursor.execute(sql_command, (guild_id,))
 
         result_tuples = self.cursor.fetchall()
         print(result_tuples)
