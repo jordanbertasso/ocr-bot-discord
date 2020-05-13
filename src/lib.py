@@ -3,6 +3,7 @@ import requests
 import time
 import filetype
 import json
+import re
 
 from google.cloud import vision
 from elasticsearch_dsl import Search, Document, Index, Text, Long, Q
@@ -216,16 +217,18 @@ def get_embed_fields(search_result):
 
 
 async def search_command(ctx, args):
+    # Remove the user mention string from the search phrase if it is present
     try:
         queried_user_id = ctx.message.mentions[0].id
-    except:
-        queried_user_id = None
-
-    # Remove the user mention string from the search phrase if it is present
-    if queried_user_id:
         search_phrase = ' '.join(args).replace(
             '<@!'+str(queried_user_id)+'>', '').strip()
-    else:
+    except AttributeError:
+        # Regex for 18 digit user id
+        r = re.compile('[0-9]{18}')
+        queried_user_id = list(filter(r.fullmatch, args))[0]
+        search_phrase = ' '.join(args).replace(queried_user_id, '')
+    except IndexError:
+        queried_user_id = None
         search_phrase = ' '.join(args)
 
     search_result = search(search_phrase, ctx.guild.id,
