@@ -87,7 +87,7 @@ async def handle_attachments(message):
             f"[BLACKLIST]: channel_id {message.channel.id} in blacklisted channels")
 
 
-def search(phrase, guild_id):
+def search(phrase, guild_id, queried_user_id=None):
     if db_connect:
         if not phrase:
             print(f'[SEARCH]: Empty search - returning')
@@ -98,6 +98,13 @@ def search(phrase, guild_id):
         search = Search()
         q = Q('bool', must=[Q('match', text=phrase),
                             Q('match', guild_id=guild_id)])
+
+        # If a user is specified to be queried for, combine it with the above query
+        if user_id:
+            q_user_id = Q('match', queried_user_id=user_id)
+            q = q & q_user_id
+        
+        # Execute the query
         s = search.query(q)
 
         result = [{
@@ -210,7 +217,7 @@ def get_embed_fields(search_result):
 
 async def search_command(ctx, args):
     search_phrase = ' '.join(args)
-    search_result = search(search_phrase, ctx.guild.id)
+    search_result = search(search_phrase, ctx.guild.id, queried_user_id=ctx.mentions[0].id)
 
     fields = get_embed_fields(search_result)
 
