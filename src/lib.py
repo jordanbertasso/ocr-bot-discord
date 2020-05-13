@@ -102,7 +102,7 @@ def search(phrase, guild_id, queried_user_id=None):
 
         # If a user is specified to be queried for, combine it with the above query
         if queried_user_id:
-            q_user_id = Q('match', author_id=queried_user_id)
+            q_user_id = Q('match', author_id=int(queried_user_id))
             q = q & q_user_id
 
         # Execute the query
