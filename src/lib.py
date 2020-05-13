@@ -217,7 +217,7 @@ def get_embed_fields(search_result):
 
 async def search_command(ctx, args):
     search_phrase = ' '.join(args)
-    search_result = search(search_phrase, ctx.guild.id, queried_user_id=ctx.mentions[0].id)
+    search_result = search(search_phrase, ctx.guild.id, queried_user_id=ctx.message.mentions[0].id)
 
     fields = get_embed_fields(search_result)
 
