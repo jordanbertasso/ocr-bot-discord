@@ -25,7 +25,7 @@ services:
             - esdata:/usr/share/elasticsearch/data
         environment:
             - bootstrap.memory_lock=true
-            - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+            - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
             - discovery.type=single-node
             - http.host=0.0.0.0
             - transport.host=localhost
