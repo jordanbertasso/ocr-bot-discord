@@ -1,8 +1,8 @@
-FROM python:3.8-alpine
+FROM python:3.8
 
 WORKDIR /usr/src/bot
 
-RUN apk add build-base zlib git
+RUN apt-get install -y git
 
 COPY requirements.txt .
 
