@@ -227,10 +227,10 @@ async def search_command(ctx, args):
             # Regex for 18 digit user id
             r = re.compile('[0-9]{18}')
             queried_user_id = list(filter(r.fullmatch, args))[0]
-            search_phrase = ' '.join(args).replace(queried_user_id, '')
+            search_phrase = ' '.join(args).replace(queried_user_id, '').strip()
     except IndexError:
         queried_user_id = None
-        search_phrase = ' '.join(args)
+        search_phrase = ' '.join(args).strip()
 
     search_result = search(search_phrase, ctx.guild.id,
                            queried_user_id=queried_user_id)
