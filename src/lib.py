@@ -216,9 +216,19 @@ def get_embed_fields(search_result):
 
 
 async def search_command(ctx, args):
-    search_phrase = ' '.join(args)
+    try:
+        queried_user_id = ctx.message.mentions[0].id
+    except:
+        queried_user_id = None
+
+    # Remove the user mention string from the search phrase if it is present
+    if queried_user_id:
+        search_phrase = ' '.join(args).replace(queried_user_id, '').strip()
+    else:
+        search_phrase = ' '.join(args)
+
     search_result = search(search_phrase, ctx.guild.id,
-                           queried_user_id=ctx.message.mentions[0].id)
+                           queried_user_id=queried_user_id)
 
     fields = get_embed_fields(search_result)
 
