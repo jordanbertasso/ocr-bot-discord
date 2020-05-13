@@ -100,10 +100,10 @@ def search(phrase, guild_id, queried_user_id=None):
                             Q('match', guild_id=guild_id)])
 
         # If a user is specified to be queried for, combine it with the above query
-        if user_id:
+        if queried_user_id:
             q_user_id = Q('match', queried_user_id=user_id)
             q = q & q_user_id
-        
+
         # Execute the query
         s = search.query(q)
 
@@ -217,7 +217,8 @@ def get_embed_fields(search_result):
 
 async def search_command(ctx, args):
     search_phrase = ' '.join(args)
-    search_result = search(search_phrase, ctx.guild.id, queried_user_id=ctx.message.mentions[0].id)
+    search_result = search(search_phrase, ctx.guild.id,
+                           queried_user_id=ctx.message.mentions[0].id)
 
     fields = get_embed_fields(search_result)
 
