@@ -13,6 +13,7 @@ with open('discord_secrets.json', 'r') as f:
     discord_secrets = json.load(f)
 
 bot = commands.Bot(command_prefix=config['prefix-key'])
+triggers = [("what week is it", "https://bots.macs.codes/lazy.png")]
 
 
 @bot.event
@@ -27,6 +28,11 @@ async def on_message(message):
     # Return if bot's own message
     if message.author == bot.user:
         return
+
+    # Check for trigger
+    for trigger, response in triggers:
+        if trigger in message.content:
+            await send_message(response, message.channel)
 
     # If the message has attachments
     if message.attachments:
