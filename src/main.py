@@ -1,5 +1,7 @@
 import logging
 import json
+import random
+import string
 
 from discord import Game, Status
 from discord.ext import commands
@@ -13,7 +15,6 @@ with open('discord_secrets.json', 'r') as f:
     discord_secrets = json.load(f)
 
 bot = commands.Bot(command_prefix=config['prefix-key'])
-triggers = [("what week is it", "https://bots.macs.codes/lazy.png")]
 
 
 @bot.event
@@ -23,8 +24,15 @@ async def on_ready():
     await bot.change_presence(status=Status.online, activity=game)
 
 
+def randomword(length):
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(length))
+
+
 @bot.event
 async def on_message(message):
+    triggers = [
+        ("what week is it", f"https://bot.macs.codes/u_lazy_{randomword(10)}.png")]
     # Return if bot's own message
     if message.author == bot.user:
         return
