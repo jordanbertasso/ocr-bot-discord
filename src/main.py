@@ -2,8 +2,9 @@ import logging
 import json
 import random
 import string
+import aiohttp
 
-from discord import Game, Status
+from discord import Game, Status, Webhook, AsyncWebhookAdapter
 from discord.ext import commands
 from lib import *
 
@@ -29,18 +30,31 @@ def randomword(length):
     return ''.join(random.choice(letters) for i in range(length))
 
 
+async def send_webook(channel, embed):
+    webhook = await channel.create_webhook(name="week", reason="week bot")
+
+    await webhook.send(embed=embed)
+    await webhook.delete()
+
+
 @bot.event
 async def on_message(message):
     triggers = [
-        ("what week is it", f"https://bot.macs.codes/u_lazy_{randomword(10)}.png")]
+        ("what week is it", send_webook, {
+            "title": "here u go",
+            "color": 49919,
+            "thumbnail": {
+                "url": f"https://bot.macs.codes/lazy{randomword(5)}.png"
+            }
+        })]
     # Return if bot's own message
     if message.author == bot.user:
         return
 
     # Check for trigger
-    for trigger, response in triggers:
+    for trigger, callback, embed in triggers:
         if trigger in message.content:
-            await send_message(response, message.channel)
+            await callback(message.channel, Embed.from_dict(embed))
 
     # If the message has attachments
     if message.attachments:
