@@ -286,7 +286,7 @@ async def link_command(ctx, args):
     jump_url = db.get_jump_url_by_id(es_id)
 
     # TODO - Maybe deny before we get jump_url
-    if db.exists(str(ctx.guild.id), es_id=es_id):
+    if jump_url:
         await ctx.send(f"{jump_url}")
     else:
         await ctx.send(f'Document with ID: {es_id} not found.')
