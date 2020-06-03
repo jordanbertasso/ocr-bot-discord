@@ -89,21 +89,32 @@ async def handle_attachments(message):
 
 
 def search(phrase, guild_id, queried_user_id=None):
-    if db_connect:
-        if not phrase:
-            print(f'[SEARCH]: Empty search - returning')
-            return
 
-        print(f'[SEARCH]: Searching for {phrase}')
+    if db_connect:
 
         search = Search()
-        q = Q('bool', must=[Q('match', text=phrase),
-                            Q('match', guild_id=guild_id)])
 
-        # If a user is specified to be queried for, combine it with the above query
-        if queried_user_id:
-            q_user_id = Q('match', author_id=int(queried_user_id))
-            q = q & q_user_id
+        if not phrase and not queried_user_id:
+            # Empty search command
+            print(f'[SEARCH]: Empty search - returning')
+            return
+        elif not phrase and queried_user_id:
+            # Empty phrase and non empty user id
+            print(f'[SEARCH]: Searching for user: {queried_user_id}')
+            q = Q('bool', must=[Q('match', author_id=int(queried_user_id)),
+                                Q('match', guild_id=guild_id)])
+        elif phrase and queried_user_id:
+            # Non empty phrase and user id
+            print(
+                f'[SEARCH]: Searching for phrase: {phrase} from user: {queried_user_id}')
+            q = Q('bool', must=[Q('match', text=phrase),
+                                Q('match', author_id=int(queried_user_id)),
+                                Q('match', guild_id=guild_id)])
+        else:
+            # Non empty phrase and empty user id
+            print(f'[SEARCH]: Searching for phrase: {phrase}')
+            q = Q('bool', must=[Q('match_phrase', text=phrase),
+                                Q('match', guild_id=guild_id)])
 
         # Execute the query
         s = search.query(q)
