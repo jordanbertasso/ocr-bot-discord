@@ -4,8 +4,8 @@ services:
     bot: # discord.py bot
         container_name: ocr-bot
         build:
-            context: ./src
-            # dockerfile: Dockerfile2
+            context: .
+            dockerfile: ./src/Dockerfile
         volumes:
             - botdata:/usr/src/bot/sql/
         restart: always
