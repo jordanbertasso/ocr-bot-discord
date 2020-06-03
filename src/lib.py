@@ -24,7 +24,7 @@ class MySource(menus.ListPageSource):
 
         search_phrase = self.search_phrase
         embed = Embed.from_dict({
-            'title': f'Search results for \"{search_phrase}\"',
+            'title': f'Search results for \"{search_phrase[:255]}\"',
             'type': 'rich',
             'fields': entries,
             'color': 0x89c6f6
