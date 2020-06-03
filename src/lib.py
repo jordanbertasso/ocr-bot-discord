@@ -121,7 +121,7 @@ def search(guild_id: str, phrase="", queried_user_id="") -> str:
         str -- [description]
     """
     # If debug mode
-    if db_connect:
+    if not db_connect:
         return ""
 
     search = Search()
