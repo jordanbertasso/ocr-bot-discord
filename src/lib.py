@@ -37,17 +37,23 @@ class MySource(menus.ListPageSource):
 with open('config.json', 'r') as f:
     config = json.load(f)
 
+# Load Discord keys
 with open('discord_secrets.json', 'r') as f:
     discord_secrets = json.load(f)
 
+# For debugging
 db_connect = config['db-connect']
 # TODO - Automatic index management
 index_name = config['index-name']
 
+# Google vision client
 vision_client = vision.ImageAnnotatorClient()
+
+# SQL db for storing blacklisted channels and admins
 sql_db = Sqlite3_db()
 
 
+# Wait for elasticsearch to initialise before we try to run setup commands
 connected = False
 while not connected and db_connect:
     try:
@@ -61,12 +67,21 @@ while not connected and db_connect:
         time.sleep(10)
 
 
-async def handle_attachments(message):
+async def handle_attachments(message: discord.message.Message) -> None:
+    """ Process attached image
+
+    Arguments:
+        message {discord.message.Message} -- discord.py
+    """
+    # Get the Discord CDN url
     url = message.attachments[0].url
+
     attachment = message.attachments[0]
 
     # Get the raw bytes of the attachment
     filebytes = await attachment.read()
+
+    # Guess the filetype
     kind = filetype.guess(filebytes)
 
     print(f'[URL]: {url}')
@@ -81,61 +96,79 @@ async def handle_attachments(message):
         print(f'[INFO]: Image too large, size: {attachment.size}')
         return
 
-    if not str(message.channel.id) in sql_db.get_blacklisted_channels(message.guild.id):
+    # Save the image if it wasn't sent in a blacklisted channel
+    if str(message.channel.id) not in sql_db.get_blacklisted_channels(message.guild.id):
         await save_image_text(url, message)
     else:
         print(
             f"[BLACKLIST]: channel_id {message.channel.id} in blacklisted channels")
 
 
-def search(phrase, guild_id, queried_user_id=None):
+def search(guild_id: str, phrase="", queried_user_id="") -> str:
+    """ Return matching results from elasticsearch, based on a search phrase,
+        a users id and the server the message was sent in
 
+    Arguments:
+        guild_id {str} -- ID of the server to query images for
+
+    Keyword Arguments:
+        phrase {str} -- The OCR'ed text to search for (default: {""})
+        queried_user_id {str} -- ID of the user who sent the image (default: {""})
+
+    Returns:
+        str -- [description]
+    """
+    # If debug mode
     if db_connect:
-
-        search = Search()
-
-        if not phrase and not queried_user_id:
-            # Empty search command
-            print(f'[SEARCH]: Empty search - returning')
-            return
-        elif not phrase and queried_user_id:
-            # Empty phrase and non empty user id
-            print(f'[SEARCH]: Searching for user: {queried_user_id}')
-            q = Q('bool', must=[Q('match', author_id=int(queried_user_id)),
-                                Q('match', guild_id=guild_id)])
-        elif phrase and queried_user_id:
-            # Non empty phrase and user id
-            print(
-                f'[SEARCH]: Searching for phrase: {phrase} from user: {queried_user_id}')
-            q = Q('bool', must=[Q('match', text=phrase),
-                                Q('match', author_id=int(queried_user_id)),
-                                Q('match', guild_id=guild_id)])
-        else:
-            # Non empty phrase and empty user id
-            print(f'[SEARCH]: Searching for phrase: {phrase}')
-            q = Q('bool', must=[Q('match_phrase', text=phrase),
-                                Q('match', guild_id=guild_id)])
-
-        # Execute the query
-        s = search.query(q)
-
-        result = [{
-            'filename': h.filename,
-            'author': h.author_username,
-            'url': h.url,
-            'message_url': h.message_url,
-            'id': h.meta.id
-        } for h in s.scan()]
-
-        return result
-    else:
         return ""
 
+    search = Search()
 
-async def save_image_text(url, message):
-    ocr_text = ""
-    hash = ""
+    if not phrase and not queried_user_id:
+        # Empty search command
+        print(f'[SEARCH]: Empty search - returning')
+        return
+    elif not phrase and queried_user_id:
+        # Empty phrase and non empty user id
+        print(f'[SEARCH]: Searching for user: {queried_user_id}')
+        q = Q('bool', must=[Q('match', author_id=int(queried_user_id)),
+                            Q('match', guild_id=guild_id)])
+    elif phrase and queried_user_id:
+        # Non empty phrase and user id
+        print(
+            f'[SEARCH]: Searching for phrase: {phrase} from user: {queried_user_id}')
+        q = Q('bool', must=[Q('match', text=phrase),
+                            Q('match', author_id=int(queried_user_id)),
+                            Q('match', guild_id=guild_id)])
+    else:
+        # Non empty phrase and empty user id
+        print(f'[SEARCH]: Searching for phrase: {phrase}')
+        q = Q('bool', must=[Q('match_phrase', text=phrase),
+                            Q('match', guild_id=guild_id)])
 
+    # Execute the query
+    s = search.query(q)
+
+    # Fields that can be used in the embed
+    result = [{
+        'filename': h.filename,
+        'author': h.author_username,
+        'url': h.url,
+        'message_url': h.message_url,
+        'id': h.meta.id
+    } for h in s.scan()]
+
+    return result
+
+
+async def save_image_text(url: str, message: discord.message.Message) -> None:
+    """ Download the image, check if it already exists in the index, run OCR on the image,
+        save the info to elasticsearch
+
+    Arguments:
+        url {str} -- CDN URL for the image
+        message {discord.message.Message} -- discord.py
+    """
     with get_image_from_url(url) as image_file:
         hash = md5(image_file.read()).hexdigest()
         print(f'[HASH]: {hash}')
@@ -171,15 +204,25 @@ async def save_image_text(url, message):
     return
 
 
-def get_filename_from_url(url):
+def get_filename_from_url(url: str) -> str:
+    """ Get the files name from the CDN URL
+
+    Arguments:
+        url {str} -- CDN URL of the image
+
+    Returns:
+        str -- File name
+    """
     filename = url[url.rfind("/")+1:]
 
     return filename
 
 
-def get_image_from_url(url):
-    """
-        Return a BytesIO object of the image
+def get_image_from_url(url: str) -> io.BytesIO:
+    """ Return a BytesIO object of the image
+
+    Returns:
+        io.BytesIO -- In memory file-like object
     """
     r = requests.get(url, stream=True)
     image_file = io.BytesIO(r.content)
