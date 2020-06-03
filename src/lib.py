@@ -288,7 +288,7 @@ async def search_command(ctx, args):
         queried_user_id = None
         search_phrase = ' '.join(args).strip()
 
-    search_result = search(search_phrase, ctx.guild.id,
+    search_result = search(ctx.guild.id, phrase=search_phrase,
                            queried_user_id=queried_user_id)
 
     fields = get_embed_fields(search_result)
