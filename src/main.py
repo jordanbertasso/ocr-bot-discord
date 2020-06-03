@@ -30,31 +30,25 @@ def randomword(length):
     return ''.join(random.choice(letters) for i in range(length))
 
 
-async def send_webook(channel, embed):
+async def send_webook(channel, embed=None, avatar_url=None):
     webhook = await channel.create_webhook(name="week", reason="week bot")
 
-    await webhook.send(embed=embed)
+    await webhook.send(content="_ _", avatar_url=avatar_url)
     await webhook.delete()
 
 
 @bot.event
 async def on_message(message):
     triggers = [
-        ("what week is it", send_webook, {
-            "title": "here u go",
-            "color": 49919,
-            "thumbnail": {
-                "url": f"https://bot.macs.codes/lazy{randomword(5)}.png"
-            }
-        })]
+        ("what week is it", send_webook, f"https://bot.macs.codes/lazy{randomword(5)}.png")]
     # Return if bot's own message
     if message.author == bot.user:
         return
 
     # Check for trigger
-    for trigger, callback, embed in triggers:
-        if trigger in message.content:
-            await callback(message.channel, Embed.from_dict(embed))
+    for trigger, callback, url in triggers:
+        if trigger in message.content.lower():
+            await callback(message.channel, avatar_url=url)
 
     # If the message has attachments
     if message.attachments:
