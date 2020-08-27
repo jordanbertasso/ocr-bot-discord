@@ -3,12 +3,12 @@ version: "3.7"
 services:
     bot: # discord.py bot
         container_name: ocr-bot
+        restart: always
         build:
             context: .
             dockerfile: ./src/Dockerfile
         volumes:
             - botdata:/usr/src/bot/sql/
-        restart: always
         networks:
             - bot-network
         depends_on:
@@ -21,8 +21,10 @@ services:
     elasticsearch: # Elasticsearch Instance
         container_name: elasticsearch
         image: docker.elastic.co/elasticsearch/elasticsearch:7.7.0
+        restart: always
         volumes: # Persist ES data in seperate "esdata" volume
             - esdata:/usr/share/elasticsearch/data
+            - /home/jb/docker/ocr-bot-discord/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
         environment:
             - bootstrap.memory_lock=true
             - "ES_JAVA_OPTS=-Xms512m -Xmx512m -Des.transport.cname_in_publish_address=true"
@@ -34,21 +36,23 @@ services:
             - bot-network
         expose:
             - "9200"
-        ports: # Expose Elasticsearch ports
-            - "9200:9200"
+              #ports: # Expose Elasticsearch ports
+        #    - "127.0.0.1:9200:9200"
 
     kibana:
-        image: docker.elastic.co/kibana/kibana:7.7.0
         container_name: kibana
+        image: docker.elastic.co/kibana/kibana:6.8.9
+        restart: always
         environment:
             SERVER_NAME: localhost
             ELASTICSEARCH_URL: http://elasticsearch:9200/
         ports:
-            - 5601:5601
+            - 127.0.0.1:5601:5601
         volumes:
             - type: volume
               source: logs
               target: /var/log
+            - /home/jb/docker/ocr-bot-discord/kibana.yml:/usr/share/kibana/config/kibana.yml
         networks:
             - bot-network
 
