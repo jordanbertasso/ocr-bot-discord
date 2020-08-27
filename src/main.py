@@ -40,7 +40,7 @@ async def send_webook(channel, embed=None, avatar_url=None):
 @bot.event
 async def on_message(message):
     triggers = [
-        ("what week is it", send_webook, f"https://bot.macs.codes/lazy{randomword(5)}.png")]
+        ("what week is it", send_webook, f"https://macs-week-image.herokuapp.com/week.png")]
     # Return if bot's own message
     if message.author == bot.user:
         return
