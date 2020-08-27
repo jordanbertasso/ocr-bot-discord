@@ -1,5 +1,6 @@
 from elasticsearch import Elasticsearch, exceptions
 from elasticsearch_dsl import connections, Search, Document, Index, Text, Date, Long, Q, analyzer, tokenizer
+from config import es_host
 
 
 standard = analyzer('standard',
@@ -25,7 +26,7 @@ class Attachment(Document):
 
 class Elastic_Database():
     def __init__(self, index_name: str):
-        connections.create_connection(hosts=["elasticsearch:9200"], timeout=20)
+        connections.create_connection(hosts=[es_host], timeout=20)
         self.create_index(index_name)
         self.index = index_name
 
