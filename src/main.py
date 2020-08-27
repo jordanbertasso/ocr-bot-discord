@@ -1,6 +1,7 @@
 import logging
 import json
 import random
+import itertools
 import string
 import aiohttp
 
@@ -47,8 +48,11 @@ async def on_message(message):
 
     # Check for trigger
     for trigger, callback, url in triggers:
-        if trigger in message.content.lower():
-            await callback(message.channel, avatar_url=url)
+        perms = itertools.permutations(trigger.split(" "))
+
+        for perm in perms:
+            if " ".join(perm) in message.content.lower():
+                await callback(message.channel, avatar_url=url)
 
     # If the message has attachments
     if message.attachments:
