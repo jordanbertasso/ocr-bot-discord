@@ -5,3 +5,4 @@ __pycache__/
 */gcloud_keys.json
 discord.log
 venv/
+kibana.yml
