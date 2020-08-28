@@ -38,10 +38,17 @@ async def send_webook(channel, embed=None, avatar_url=None):
     await webhook.delete()
 
 
+def isanagram(ele1,ele2):
+    ele1=list(ele1)
+    ele2=list(ele2)
+    return(sorted(ele1).find(sorted(ele2)))
+
 @bot.event
 async def on_message(message):
     triggers = [
-        ("what week is it", send_webook, f"https://macs-week-image.herokuapp.com/image/{randomword(7)}.png")]
+        ("what week is it", send_webook, f"https://macs-week-image.herokuapp.com/image/{randomword(7)}.png"),
+        ("what week is it not", send_webook, f"https://lh3.googleusercontent.com/proxy/6yHfv2IEZWS-PQYxfx3DlLPE18KkOsRlKg1tHwCgfb6PpVpIo_A-1zZbc-h1EqWE_2S0yUybDA-w7uh2mWD8rnwz4cdcZoK8vgY40UcEvYlMKZQ9lQouuzAdSmgw8iNig2KgsaKXdFu2EQ6QzV6LTNZN1SkRKCeHt_g"),
+        ("stupid week bot", send_webook, f"https://cdn.boldomatic.com/content/post/RXxLbw/call-me-stupid-and-i-call-you-single?size=800")]
     # Return if bot's own message
     if message.author == bot.user:
         return
@@ -61,6 +68,12 @@ async def on_message(message):
 
     await bot.process_commands(message)
 
+    if message.author != bot.user:
+        {
+            if (isanagram(message, "what week is it"))
+                await callback(message.channel, "'what week is it' Can be created from that message btw.")
+        }
+    
     return
 
 
