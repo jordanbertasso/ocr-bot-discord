@@ -1,7 +1,6 @@
 import logging
 import json
 import random
-import itertools
 import string
 import aiohttp
 
@@ -31,28 +30,41 @@ def randomword(length):
     return ''.join(random.choice(letters) for i in range(length))
 
 
-async def send_webook(channel, embed=None, avatar_url=None):
+async def send_webhook(channel, avatar_url: str, message: str):
     webhook = await channel.create_webhook(name="week", reason="week bot")
 
-    await webhook.send(content="_ _", avatar_url=avatar_url)
+    await webhook.send(content=message, avatar_url=avatar_url)
     await webhook.delete()
+
+
+def is_anagram(ele1, ele2):
+    l1 = [c for c in ele1 if c not in string.whitespace]
+    l2 = [c for c in ele2 if c not in string.whitespace]
+    l1.sort()
+    l2.sort()
+    return l1 == l2
 
 
 @bot.event
 async def on_message(message):
+    week_avatar_url = f"https://macs-week-image.herokuapp.com/image/{randomword(7)}.png"
     triggers = [
-        ("what week is it", send_webook, f"https://macs-week-image.herokuapp.com/image/{randomword(7)}.png")]
-    # Return if bot's own message
+        ("what week is it", send_webhook, week_avatar_url, "_ _"),
+        ("what week is it not", send_webhook,
+         week_avatar_url, f"https://i.imgur.com/BGBvnvq.jpg"),
+        ("stupid week bot", send_webhook,
+         week_avatar_url, f"https://i.imgur.com/WXS93ht.jpg")
+    ]
+
+   # Return if bot's own message
     if message.author == bot.user:
         return
 
     # Check for trigger
-    for trigger, callback, url in triggers:
-        perms = itertools.permutations(trigger.split(" "))
-
-        for perm in perms:
-            if " ".join(perm) in message.content.lower():
-                await callback(message.channel, avatar_url=url)
+    for trigger, callback, avatar_url, webhook_message in triggers:
+        if is_anagram(message.content.lower(), trigger):
+            await callback(message.channel, avatar_url=avatar_url, message=webhook_message)
+            break
 
     # If the message has attachments
     if message.attachments:
