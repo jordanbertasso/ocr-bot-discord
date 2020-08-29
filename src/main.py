@@ -38,8 +38,8 @@ async def send_webhook(channel, avatar_url: str, message: str):
 
 
 def is_anagram(ele1, ele2):
-    l1 = [c for c in ele1 if c not in string.whitespace]
-    l2 = [c for c in ele2 if c not in string.whitespace]
+    l1 = [c for c in ele1 if c not in string.whitespace and c not in string.punctuation]
+    l2 = [c for c in ele2 if c not in string.whitespace and c not in string.punctuation]
     l1.sort()
     l2.sort()
     return l1 == l2
